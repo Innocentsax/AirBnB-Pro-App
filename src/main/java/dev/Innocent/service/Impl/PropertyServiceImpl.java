@@ -4,6 +4,7 @@ import dev.Innocent.DTO.request.PropertyDTO;
 import dev.Innocent.exception.PropertyNotFoundException;
 import dev.Innocent.mapper.PropertyMapper;
 import dev.Innocent.model.Property;
+import dev.Innocent.model.User;
 import dev.Innocent.repository.PropertyRepository;
 import dev.Innocent.service.PropertyService;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +25,13 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyMapper propertyMapper;
 
     @Override
-    public PropertyDTO createProperty(PropertyDTO propertyDTO) {
-        Property property = propertyMapper.mapToEntity(propertyDTO);
+    public PropertyDTO createProperty(PropertyDTO propertyDTO, User user) {
+        Property property = propertyMapper.mapToEntity(propertyDTO, user);
         Property savedProperty = propertyRepository.save(property);
         return propertyMapper.mapToDTO(savedProperty);
     }
 
-    public List<PropertyDTO> getAllProperties(Integer pageNumber, Integer pageSize, String sortBy, String order) {
+    public List<PropertyDTO> getAllProperties(Integer pageNumber, Integer pageSize, String sortBy, String order, User user) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
         List<Property> properties = propertyRepository.findAll(pageable).getContent();
@@ -72,10 +73,10 @@ public class PropertyServiceImpl implements PropertyService {
         return "Property deleted successfully with Id = " + id;
     }
 
-    public List<PropertyDTO> getPropertiesByUserId(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String order) {
+    public List<PropertyDTO> getPropertiesByUserId(User user, Integer pageNumber, Integer pageSize, String sortBy, String order) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        List<Property> properties = propertyRepository.findByUserId(userId, pageable).getContent();
+        List<Property> properties = propertyRepository.findByUser(user, pageable).getContent();
         return properties.stream().map(propertyMapper::mapToDTO).collect(Collectors.toList());
     }
 }

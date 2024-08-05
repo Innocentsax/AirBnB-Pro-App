@@ -26,11 +26,11 @@ public class PropertyMapper {
         propertyDTO.setPetAllowed(property.isPetAllowed());
         propertyDTO.setMaxCheckoutTimeInNights(property.getMaxCheckoutTimeInNights());
         propertyDTO.setExtraCharges(property.getExtraCharges());
-        propertyDTO.setUserId(property.getUser().getId());
+        propertyDTO.setUser(property.getUser());
         return propertyDTO;
     }
 
-    public Property mapToEntity(PropertyDTO propertyDTO) {
+    public Property mapToEntity(PropertyDTO propertyDTO, User user) {
         Property property = new Property();
         property.setName(propertyDTO.getName());
         property.setDescription(propertyDTO.getDescription());
@@ -43,8 +43,8 @@ public class PropertyMapper {
         property.setPetAllowed(propertyDTO.isPetAllowed());
         property.setMaxCheckoutTimeInNights(propertyDTO.getMaxCheckoutTimeInNights());
         property.setExtraCharges(propertyDTO.getExtraCharges());
-        User user = userRepository.findById(propertyDTO.getUserId()).orElse(null);
         property.setUser(user);
+
         return property;
     }
 }

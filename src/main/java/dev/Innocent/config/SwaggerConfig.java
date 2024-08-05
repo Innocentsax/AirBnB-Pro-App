@@ -14,12 +14,12 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(info = @Info(
         contact = @Contact(
-                name = "Event Management System",
-                email = "Sunday@gmail.com",
-                url = "buildwithsunday.com"),
-        title = "Event Management System",
+                name = "Property Management System",
+                email = "innocentcharlesudo@gmsil.com",
+                url = "http://www.propertymanagementsystem.com"),
+        title = "Property Management System",
         version = "1.0",
-        description = "This is the API documentation for the Event Management System",
+        description = "This is the API documentation for the Property Management System",
         license = @License(
                 name = "Apache 2.0",
                 url = "http://www.apache.org/licenses/LICENSE-2.0.html"

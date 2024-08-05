@@ -1,5 +1,6 @@
 package dev.Innocent.DTO.request;
 
+import dev.Innocent.model.User;
 import lombok.Data;
 
 @Data
@@ -16,5 +17,5 @@ public class PropertyDTO {
     private boolean petAllowed;
     private int maxCheckoutTimeInNights;
     private double extraCharges;
-    private Long userId;
+    private User user;
 }

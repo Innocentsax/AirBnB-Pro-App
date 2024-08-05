@@ -4,7 +4,9 @@ import dev.Innocent.DTO.ApiResponseBody;
 import dev.Innocent.DTO.request.PropertyDTO;
 import dev.Innocent.enums.AppConstants;
 import dev.Innocent.enums.InternalCodeEnum;
+import dev.Innocent.model.User;
 import dev.Innocent.service.PropertyService;
+import dev.Innocent.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,27 +18,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PropertyController {
     private final PropertyService propertyService;
+    private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponseBody<PropertyDTO>> createProperty(@RequestBody PropertyDTO propertyDTO) {
-        PropertyDTO createdProperty = propertyService.createProperty(propertyDTO);
+    public ResponseEntity<ApiResponseBody<PropertyDTO>> createProperty(
+            @RequestBody PropertyDTO propertyDTO, @RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        PropertyDTO createdProperty = propertyService.createProperty(propertyDTO, user);
         return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003.getHttpStatus())
-                .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003.getCodeDescription(), InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003, createdProperty));
+                .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003.getCodeDescription(),
+                        InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003, createdProperty));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponseBody<List<PropertyDTO>>> getAllProperties(
+            @RequestHeader("Authorization") String jwt,
             @RequestParam(defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
-            @RequestParam(defaultValue = AppConstants.SORT_ORDER, required = false) String order) {
-        List<PropertyDTO> properties = propertyService.getAllProperties(pageNumber, pageSize, sortBy, order);
+            @RequestParam(defaultValue = AppConstants.SORT_ORDER, required = false) String order) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        List<PropertyDTO> properties = propertyService.getAllProperties(pageNumber, pageSize, sortBy, order, user);
         return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_001.getHttpStatus())
                 .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_001.getCodeDescription(), InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_001, properties));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseBody<PropertyDTO>> getPropertyById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseBody<PropertyDTO>> getPropertyById(
+            @PathVariable Long id, @RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
         PropertyDTO property = propertyService.getPropertyById(id);
         if (property == null) {
             return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_002.getHttpStatus())
@@ -62,7 +72,9 @@ public class PropertyController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseBody<String>> deleteProperty(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseBody<String>> deleteProperty(
+            @PathVariable Long id, @RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
         propertyService.deleteProperty(id);
         return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_005.getHttpStatus())
                 .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_005.getCodeDescription(),
@@ -71,12 +83,13 @@ public class PropertyController {
 
     @GetMapping("/users/{userId}/properties")
     public ResponseEntity<ApiResponseBody<List<PropertyDTO>>> getPropertiesByUserId(
-            @PathVariable Long userId,
+            @RequestHeader("Authorization") String jwt,
             @RequestParam(defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
-            @RequestParam(defaultValue = AppConstants.SORT_ORDER, required = false) String order) {
-        List<PropertyDTO> properties = propertyService.getPropertiesByUserId(userId, pageNumber, pageSize, sortBy, order);
+            @RequestParam(defaultValue = AppConstants.SORT_ORDER, required = false) String order) throws Exception {
+        User user = userService.findUserProfileByJwt(jwt);
+        List<PropertyDTO> properties = propertyService.getPropertiesByUserId(user, pageNumber, pageSize, sortBy, order);
         return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_006.getHttpStatus())
                 .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_006.getCodeDescription(),
                         InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_006, properties));
