@@ -2,7 +2,6 @@ package dev.Innocent.mapper;
 
 import dev.Innocent.DTO.request.PropertyDTO;
 import dev.Innocent.model.Property;
-import dev.Innocent.model.User;
 import dev.Innocent.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,11 +25,10 @@ public class PropertyMapper {
         propertyDTO.setPetAllowed(property.isPetAllowed());
         propertyDTO.setMaxCheckoutTimeInNights(property.getMaxCheckoutTimeInNights());
         propertyDTO.setExtraCharges(property.getExtraCharges());
-        propertyDTO.setUser(property.getUser());
         return propertyDTO;
     }
 
-    public Property mapToEntity(PropertyDTO propertyDTO, User user) {
+    public Property mapToEntity(PropertyDTO propertyDTO) {
         Property property = new Property();
         property.setName(propertyDTO.getName());
         property.setDescription(propertyDTO.getDescription());
@@ -43,7 +41,6 @@ public class PropertyMapper {
         property.setPetAllowed(propertyDTO.isPetAllowed());
         property.setMaxCheckoutTimeInNights(propertyDTO.getMaxCheckoutTimeInNights());
         property.setExtraCharges(propertyDTO.getExtraCharges());
-        property.setUser(user);
 
         return property;
     }

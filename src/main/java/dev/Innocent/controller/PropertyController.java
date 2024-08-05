@@ -22,9 +22,8 @@ public class PropertyController {
 
     @PostMapping
     public ResponseEntity<ApiResponseBody<PropertyDTO>> createProperty(
-            @RequestBody PropertyDTO propertyDTO, @RequestHeader("Authorization") String jwt) throws Exception {
-        User user = userService.findUserProfileByJwt(jwt);
-        PropertyDTO createdProperty = propertyService.createProperty(propertyDTO, user);
+            @RequestBody PropertyDTO propertyDTO) throws Exception {
+        PropertyDTO createdProperty = propertyService.createProperty(propertyDTO);
         return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003.getHttpStatus())
                 .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003.getCodeDescription(),
                         InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_003, createdProperty));
@@ -89,7 +88,7 @@ public class PropertyController {
             @RequestParam(defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
             @RequestParam(defaultValue = AppConstants.SORT_ORDER, required = false) String order) throws Exception {
         User user = userService.findUserProfileByJwt(jwt);
-        List<PropertyDTO> properties = propertyService.getPropertiesByUserId(user, pageNumber, pageSize, sortBy, order);
+        List<PropertyDTO> properties = propertyService.getPropertiesByUserId(user.getId(), pageNumber, pageSize, sortBy, order);
         return ResponseEntity.status(InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_006.getHttpStatus())
                 .body(new ApiResponseBody<>(true, InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_006.getCodeDescription(),
                         InternalCodeEnum.PROPERTY_MANAGEMENT_CODE_006, properties));

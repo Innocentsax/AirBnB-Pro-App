@@ -6,12 +6,15 @@ import dev.Innocent.mapper.PropertyMapper;
 import dev.Innocent.model.Property;
 import dev.Innocent.model.User;
 import dev.Innocent.repository.PropertyRepository;
+import dev.Innocent.repository.UserRepository;
 import dev.Innocent.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,12 +26,24 @@ import java.util.stream.Collectors;
 public class PropertyServiceImpl implements PropertyService {
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
+    private final UserRepository userRepository;
 
     @Override
-    public PropertyDTO createProperty(PropertyDTO propertyDTO, User user) {
-        Property property = propertyMapper.mapToEntity(propertyDTO, user);
-        Property savedProperty = propertyRepository.save(property);
-        return propertyMapper.mapToDTO(savedProperty);
+    public PropertyDTO createProperty(PropertyDTO propertyDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null) {
+            String email = (String) authentication.getPrincipal();
+            User user = userRepository.findByEmail(email);
+
+            Property property = propertyMapper.mapToEntity(propertyDTO);
+            property.setUser(user);
+            Property savedProperty = propertyRepository.save(property);
+            PropertyDTO savedMappedProperty = propertyMapper.mapToDTO(savedProperty);
+            return savedMappedProperty;
+        }else {
+            throw new RuntimeException("User not authenticated");
+        }
     }
 
     public List<PropertyDTO> getAllProperties(Integer pageNumber, Integer pageSize, String sortBy, String order, User user) {
@@ -73,10 +88,10 @@ public class PropertyServiceImpl implements PropertyService {
         return "Property deleted successfully with Id = " + id;
     }
 
-    public List<PropertyDTO> getPropertiesByUserId(User user, Integer pageNumber, Integer pageSize, String sortBy, String order) {
+    public List<PropertyDTO> getPropertiesByUserId(Long userId, Integer pageNumber, Integer pageSize, String sortBy, String order) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        List<Property> properties = propertyRepository.findByUser(user, pageable).getContent();
+        List<Property> properties = propertyRepository.findByUserId(userId, pageable).getContent();
         return properties.stream().map(propertyMapper::mapToDTO).collect(Collectors.toList());
     }
 }
